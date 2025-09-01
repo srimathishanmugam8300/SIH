@@ -1,12 +1,9 @@
-// src/App.js
-import React from 'react';
-import DynamicAuth from './DynamicAuth';
-import './App.css';
+import PrincipalLogin from "./Pages/PrincipalLogin";
 
 function App() {
   return (
-    <div className="App">
-      <DynamicAuth />
+    <div>
+      <PrincipalLogin />
     </div>
   );
 }
