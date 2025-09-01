@@ -152,47 +152,108 @@ function PrincipalLogin() {
       backgroundColor: "#f4f6f8",
       flexDirection: "column"
     }}>
-      <form 
-        onSubmit={handleLogin} 
-        style={{ 
-          background: "white", 
-          padding: "30px", 
-          borderRadius: "10px", 
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)" 
-        }}
-      >
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Principal Login</h2>
-        
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
-        
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "20px" }}
-        />
-        
+      <div style={{ 
+        background: "white", 
+        padding: "30px", 
+        borderRadius: "15px", 
+        boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
+        width: "350px"
+      }}>
+        {/* Back Button */}
         <button 
-          type="submit" 
+          onClick={handleBackToRoleSelection}
           style={{ 
-            width: "100%", 
-            padding: "10px", 
-            background: "#007bff", 
-            color: "white", 
+            background: "none", 
             border: "none", 
-            borderRadius: "5px" 
+            color: "#3498db", 
+            cursor: "pointer", 
+            marginBottom: "20px",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center"
           }}
         >
-          Login
+          ← Back to role selection
         </button>
-      </form>
+
+        <h2 style={{ 
+          textAlign: "center", 
+          marginBottom: "20px", 
+          color: "#2c3e50",
+          textTransform: "capitalize"
+        }}>
+          {selectedRole} Login
+        </h2>
+        
+        {error && (
+          <div style={{ 
+            color: "red", 
+            textAlign: "center", 
+            marginBottom: "15px",
+            padding: "10px",
+            backgroundColor: "#ffebee",
+            borderRadius: "5px",
+            fontSize: "14px"
+          }}>
+            {error}
+          </div>
+        )}
+      
+      
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoading}
+            style={{ 
+              width: "100%", 
+              padding: "12px", 
+              marginBottom: "15px", 
+              border: "1px solid #ddd",
+              borderRadius: "5px",
+              boxSizing: "border-box" 
+            }}
+          />
+          
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            style={{ 
+              width: "100%", 
+              padding: "12px", 
+              marginBottom: "20px", 
+              border: "1px solid #ddd",
+              borderRadius: "5px",
+              boxSizing: "border-box" 
+            }}
+          />
+          
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            style={{ 
+              width: "100%", 
+              padding: "12px", 
+              background: isLoading ? "#ccc" : 
+                         selectedRole === 'principal' ? "#e74c3c" :
+                         selectedRole === 'staff' ? "#3498db" : "#27ae60", 
+              color: "white", 
+              border: "none", 
+              borderRadius: "5px",
+              fontSize: "16px",
+              fontWeight: "600",
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isLoading ? "Signing in..." : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
