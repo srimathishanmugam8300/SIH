@@ -198,7 +198,8 @@ function PrincipalLogin() {
             {error}
           </div>
         )}
-        
+      
+      
         <form onSubmit={handleLogin}>
           <input
             type="text"
