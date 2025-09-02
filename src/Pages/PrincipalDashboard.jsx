@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardCard from './DashboardCard';
+import StaffManagement from './StaffManagement';
 
 const PrincipalDashboard = ({ user, onLogout }) => {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
   const dashboardItems = [
     {
       icon: "👥",
       title: "Access Staffs",
       description: "Manage teaching and non-teaching staff accounts, permissions, and profiles",
-      onClick: () => alert("Access Staffs functionality will be implemented here")
+      onClick: () => setCurrentPage('staff')
     },
     {
       icon: "🎓",
@@ -35,6 +38,10 @@ const PrincipalDashboard = ({ user, onLogout }) => {
     }
   ];
 
+  if (currentPage === 'staff') {
+    return <StaffManagement onBack={() => setCurrentPage('dashboard')} />;
+  }
+
   return (
     <div style={{ 
       minHeight: "100vh",
@@ -48,7 +55,7 @@ const PrincipalDashboard = ({ user, onLogout }) => {
         borderRadius: "10px", 
         boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
         marginBottom: "30px",
-        textAlign: "left" // Changed to left alignment
+        textAlign: "left"
       }}>
         <h1 style={{ 
           color: "#2c3e50",
@@ -69,52 +76,43 @@ const PrincipalDashboard = ({ user, onLogout }) => {
         </p>
       </div>
 
- {/* Dashboard Grid - 3 on top, 2 centered below */}
-<div style={{ 
-  display: "flex", 
-  flexDirection: "column", 
-  alignItems: "center", 
-  gap: "30px", 
-  maxWidth: "1200px", 
-  margin: "0 auto" 
-}}>
-  {/* Top row with 3 items */}
-  <div style={{ 
-    display: "grid", 
-    gridTemplateColumns: "repeat(3, 1fr)", 
-    gap: "25px", 
-    width: "100%" 
-  }}>
-    {dashboardItems.slice(0, 3).map((item, index) => (
-      <DashboardCard
-        key={index}
-        icon={item.icon}
-        title={item.title}
-        description={item.description}
-        onClick={item.onClick}
-      />
-    ))}
-  </div>
+      {/* Top Row - 3 Grids */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "25px",
+        maxWidth: "1000px",
+        margin: "0 auto 25px auto"
+      }}>
+        {dashboardItems.slice(0, 3).map((item, index) => (
+          <DashboardCard
+            key={index}
+            icon={item.icon}
+            title={item.title}
+            description={item.description}
+            onClick={item.onClick}
+          />
+        ))}
+      </div>
 
-  {/* Bottom row with 2 items, centered */}
-  <div style={{ 
-    display: "grid", 
-    gridTemplateColumns: "repeat(2, 1fr)", 
-    gap: "25px", 
-    justifyContent: "center", 
-    width: "70%"  // shrink width so the 2 cards stay centered
-  }}>
-    {dashboardItems.slice(3).map((item, index) => (
-      <DashboardCard
-        key={index + 3}
-        icon={item.icon}
-        title={item.title}
-        description={item.description}
-        onClick={item.onClick}
-      />
-    ))}
-  </div>
-</div>
+      {/* Bottom Row - 2 Grids Centered */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "25px",
+        maxWidth: "700px",
+        margin: "0 auto"
+      }}>
+        {dashboardItems.slice(3, 5).map((item, index) => (
+          <DashboardCard
+            key={index + 3}
+            icon={item.icon}
+            title={item.title}
+            description={item.description}
+            onClick={item.onClick}
+          />
+        ))}
+      </div>
 
       {/* Logout Button */}
       <div style={{ 
