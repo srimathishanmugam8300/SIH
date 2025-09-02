@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
+import PrincipalDashboard from './PrincipalDashboard';
 
 function PrincipalLogin() {
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "574537872769-fcl2dmjh6mu8h7c3l6ne5s17fsnjqfjb.apps.googleusercontent.com";
@@ -161,76 +162,21 @@ function PrincipalLogin() {
     setAuthMethod("");
   };
 
-  const Dashboard = () => {
-    return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "100vh",
-        backgroundColor: "#f4f6f8",
-        flexDirection: "column"
-      }}>
-        <div style={{ 
-          background: "white", 
-          padding: "40px", 
-          borderRadius: "15px", 
-          boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
-          textAlign: "center",
-          width: "400px"
-        }}>
-          <h1 style={{ 
-            color: "#2c3e50",
-            fontSize: "32px",
-            marginBottom: "20px"
-          }}>
-            Welcome, {name || username}!
-          </h1>
-          
-          <p style={{ 
-            fontSize: "18px",
-            color: "#7f8c8d",
-            marginBottom: "30px"
-          }}>
-            Hey! How are you? 👋
-          </p>
+ const Dashboard = () => (
+  <PrincipalDashboard
+    user={{ name, username }}
+    onLogout={() => {
+      setIsLoggedIn(false);
+      setIsLogin(true);
+      setSelectedRole(null);
+      setUsername("");
+      setPassword("");
+      setName("");
+      setEmail("");
+    }}
+  />
+);
 
-          <p style={{ 
-            fontSize: "16px",
-            color: "#3498db",
-            marginBottom: "20px",
-            fontWeight: "bold"
-          }}>
-            Role: {selectedRole?.toUpperCase()}
-          </p>
-
-          <button 
-            onClick={() => {
-              setIsLoggedIn(false);
-              setIsLogin(true);
-              setSelectedRole(null);
-              setUsername("");
-              setPassword("");
-              setName("");
-              setEmail("");
-            }}
-            style={{ 
-              padding: "12px 24px", 
-              background: "#e74c3c", 
-              color: "white", 
-              border: "none", 
-              borderRadius: "5px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer"
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    );
-  };
 
   if (isLoggedIn) {
     return <Dashboard />;
