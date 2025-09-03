@@ -11,47 +11,12 @@ const StaffManagement = ({ onBack }) => {
     subject: ''
   });
 
-  // Load staff data from localStorage when component loads
-  useEffect(() => {
-    const savedStaff = localStorage.getItem('schoolStaff');
-    if (savedStaff) {
-      try {
-        setStaffMembers(JSON.parse(savedStaff));
-      } catch (error) {
-        console.error('Error parsing staff data:', error);
-        setStaffMembers([]);
-      }
-    }
-  }, []);
-
-  // Save staff data to localStorage whenever staffMembers changes
-  useEffect(() => {
-    localStorage.setItem('schoolStaff', JSON.stringify(staffMembers));
-  }, [staffMembers]);
-
-  const handleAddStaff = (e) => {
-    e.preventDefault(); // Prevent page reload
-    
+  const handleAddStaff = () => {
     if (newStaff.name && newStaff.email && newStaff.contact) {
-      const staffData = {
-        id: Date.now(),
-        name: newStaff.name,
-        email: newStaff.email,
-        contact: newStaff.contact,
-        classes: newStaff.classes,
-        subject: newStaff.subject,
-        dateAdded: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
-      };
-
-      // Add to staff list
-      setStaffMembers(prevStaff => [...prevStaff, staffData]);
-      
-      // Reset form
+      setStaffMembers([...staffMembers, { ...newStaff, id: Date.now() }]);
       setNewStaff({ name: '', email: '', contact: '', classes: '', subject: '' });
       setShowAddForm(false);
-      
-      // Show success message without alert
-      console.log('Staff member added successfully!', staffData);
+      alert('Staff member added successfully!');
     } else {
       alert('Please fill in Name, Email, and Contact fields! ❌');
     }
@@ -62,48 +27,6 @@ const StaffManagement = ({ onBack }) => {
       ...newStaff,
       [e.target.name]: e.target.value
     });
-  };
-
-  const handleDeleteStaff = (id) => {
-    if (window.confirm('Are you sure you want to delete this staff member?')) {
-      const updatedStaff = staffMembers.filter(staff => staff.id !== id);
-      setStaffMembers(updatedStaff);
-    }
-  };
-
-  // Export staff data as JSON file
-  const exportToJSON = () => {
-    const dataStr = JSON.stringify(staffMembers, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = 'staff_data.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
-
-  // Import staff data from JSON file
-  const importFromJSON = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (Array.isArray(importedData)) {
-            setStaffMembers(importedData);
-            alert('Staff data imported successfully! ✅');
-          } else {
-            alert('Invalid JSON format! ❌');
-          }
-        } catch (error) {
-          alert('Error parsing JSON file! ❌');
-        }
-      };
-      reader.readAsText(file);
-    }
   };
 
   return (
@@ -371,7 +294,7 @@ const StaffManagement = ({ onBack }) => {
         </div>
       )}
 
-      {/* Staff List Display */}
+      {/* Staff List */}
       <div style={{
         background: "white",
         padding: "25px",
@@ -409,30 +332,8 @@ const StaffManagement = ({ onBack }) => {
                 background: "#f8f9fa",
                 padding: "20px",
                 borderRadius: "8px",
-                border: "2px solid #e9ecef",
-                position: "relative"
+                border: "1px solid #e9ecef"
               }}>
-                <button
-                  onClick={() => handleDeleteStaff(staff.id)}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    background: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: "30px",
-                    height: "30px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold"
-                  }}
-                  title="Delete Staff"
-                >
-                  ×
-                </button>
-                
                 <h4 style={{ 
                   color: "#2c3e50",
                   fontSize: "18px",
