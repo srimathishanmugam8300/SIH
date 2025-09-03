@@ -45,7 +45,11 @@ function PrincipalLogin() {
       alert(`Login Successful as ${selectedRole.toUpperCase()}! ✅`);
       setIsLoading(false);
     }, 1000);
-  };
+  }catch (err) {
+    setError("Login failed");
+    setIsLoading(false);
+  }
+};
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -67,7 +71,11 @@ function PrincipalLogin() {
       setIsLogin(true);
       setSelectedRole(null);
     }, 1000);
-  };
+  }catch (err) {
+    setError("Signup failed");
+    setIsLoading(false);
+  }
+};
 
   const handleBackToRoleSelection = () => {
     setSelectedRole(null);
