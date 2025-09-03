@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from "jwt-decode";
+import  jwtDecode  from "jwt-decode";
 import PrincipalDashboard from './PrincipalDashboard';
 
 function PrincipalLogin() {
@@ -429,7 +429,7 @@ function PrincipalLogin() {
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                disabled={isLoading}
+                disabled极={isLoading}
                 style={{ 
                   width: "100%", 
                   padding: "12px", 
