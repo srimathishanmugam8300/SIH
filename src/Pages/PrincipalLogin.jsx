@@ -18,64 +18,71 @@ function PrincipalLogin() {
     setError("");
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError("");
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    if (!selectedRole) {
-      setError("Please select a role first");
-      return;
-    }
+  if (!selectedRole) {
+    setError("Please select a role first");
+    return;
+  }
 
-    if (!username.trim() || !password.trim()) {
-      setError("Please fill in all fields");
-      return;
-    }
-
+  try {
     setIsLoading(true);
+    const res = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: username, password, role: selectedRole }),
+    });
 
-    // Simulate authentication process
-    setTimeout(() => {
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message);
+    } else {
       alert(`Login Successful as ${selectedRole.toUpperCase()}! ✅`);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!selectedRole) {
-      setError("Please select a role");
-      return;
     }
+  } catch (err) {
+    setError("Server error, try again");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError("Please fill in all fields");
-      return;
-    }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+  const handleSignup = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    if (!email.includes('@')) {
-      setError("Please enter a valid email address");
-      return;
-    }
+  if (!selectedRole) {
+    setError("Please select a role");
+    return;
+  }
 
+  try {
     setIsLoading(true);
+    const res = await fetch("http://localhost:5000/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, role: selectedRole }),
+    });
 
-    // Simulate registration process
-    setTimeout(() => {
-      alert(`Registration Successful as ${selectedRole.toUpperCase()}! ✅\nName: ${name}\nEmail: ${email}`);
-      setIsLoading(false);
-      // Switch back to login after successful registration
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message);
+    } else {
+      alert(`Registration Successful as ${selectedRole.toUpperCase()}! ✅`);
       setIsLogin(true);
       setSelectedRole(null);
-    }, 1000);
-  };
+    }
+  } catch (err) {
+    setError("Server error, try again");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleBackToRoleSelection = () => {
     setSelectedRole(null);
