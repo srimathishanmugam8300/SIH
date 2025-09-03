@@ -31,51 +31,101 @@ function PrincipalLogin() {
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
+    setRegistrationStatus("");
 
-  if (!selectedRole) {
-    setError("Please select a role first");
-    return;
-  }
+    if (!selectedRole) {
+      setError("Please select a role first");
+      return;
+    }
 
-  try {
+    if (!username.trim() || !password.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate authentication process
     setTimeout(() => {
       alert(`Login Successful as ${selectedRole.toUpperCase()}! ✅`);
       setIsLoading(false);
+      setIsLoggedIn(true);
     }, 1000);
-  }catch (err) {
-    setError("Login failed");
-    setIsLoading(false);
-  }
-};
+  };
 
-  const handleSignup = (e) => {
+  const handleEmailSignup = (e) => {
     e.preventDefault();
     setError("");
+    setRegistrationStatus("");
+    setAuthMethod("email");
 
-  if (!selectedRole) {
-    setError("Please select a role");
-    return;
-  }
+    if (!selectedRole) {
+      setError("Please select a role");
+      return;
+    }
 
-  try {
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate registration process
     setTimeout(() => {
-      alert(`Registration Successful as ${selectedRole.toUpperCase()}! ✅\nName: ${name}\nEmail: ${email}`);
-      setIsLoading(false);
-      // Switch back to login after successful registration
-      setIsLogin(true);
-      setSelectedRole(null);
+      if (selectedRole === 'principal') {
+        alert(`Registration Successful as PRINCIPAL! ✅\nName: ${name}\nEmail: ${email}`);
+        setIsLoading(false);
+        setIsLogin(true);
+        setSelectedRole(null);
+      } else {
+        setRegistrationStatus(`pending_${selectedRole}`);
+        setIsLoading(false);
+      }
     }, 1000);
-  }catch (err) {
-    setError("Signup failed");
-    setIsLoading(false);
-  }
-};
+  };
+
+  const handleGoogleSuccess = (credentialResponse) => {
+    setAuthMethod("google");
+    setError("");
+    
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      const { name, email } = decoded;
+
+      setName(name);
+      setEmail(email);
+
+      setIsLoading(true);
+
+      setTimeout(() => {
+        if (selectedRole === 'principal') {
+          alert(`Google Login Successful as PRINCIPAL! ✅\nName: ${name}\nEmail: ${email}`);
+          setIsLoading(false);
+          setIsLoggedIn(true);
+        } else {
+          setRegistrationStatus(`pending_${selectedRole}`);
+          setIsLoading(false);
+        }
+      }, 1000);
+
+    } catch (error) {
+      setError("Failed to authenticate with Google. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google authentication failed. Please try again.");
+  };
 
   const handleBackToRoleSelection = () => {
     setSelectedRole(null);
@@ -112,21 +162,20 @@ function PrincipalLogin() {
     setAuthMethod("");
   };
 
- const Dashboard = () => (
-  <PrincipalDashboard
-    user={{ name, username }}
-    onLogout={() => {
-      setIsLoggedIn(false);
-      setIsLogin(true);
-      setSelectedRole(null);
-      setUsername("");
-      setPassword("");
-      setName("");
-      setEmail("");
-    }}
-  />
-);
-
+  const Dashboard = () => (
+    <PrincipalDashboard
+      user={{ name, username }}
+      onLogout={() => {
+        setIsLoggedIn(false);
+        setIsLogin(true);
+        setSelectedRole(null);
+        setUsername("");
+        setPassword("");
+        setName("");
+        setEmail("");
+      }}
+    />
+  );
 
   if (isLoggedIn) {
     return <Dashboard />;
