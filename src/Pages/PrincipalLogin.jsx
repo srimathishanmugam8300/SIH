@@ -162,20 +162,21 @@ function PrincipalLogin() {
     setAuthMethod("");
   };
 
-  const Dashboard = () => (
-    <PrincipalDashboard
-      user={{ name, username }}
-      onLogout={() => {
-        setIsLoggedIn(false);
-        setIsLogin(true);
-        setSelectedRole(null);
-        setUsername("");
-        setPassword("");
-        setName("");
-        setEmail("");
-      }}
-    />
-  );
+ const Dashboard = () => (
+  <PrincipalDashboard
+    user={{ name, username }}
+    onLogout={() => {
+      setIsLoggedIn(false);
+      setIsLogin(true);
+      setSelectedRole(null);
+      setUsername("");
+      setPassword("");
+      setName("");
+      setEmail("");
+    }}
+  />
+);
+
 
   if (isLoggedIn) {
     return <Dashboard />;
