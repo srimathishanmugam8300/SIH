@@ -177,7 +177,6 @@ function PrincipalLogin() {
   />
 );
 
-
   if (isLoggedIn) {
     return <Dashboard />;
   }
