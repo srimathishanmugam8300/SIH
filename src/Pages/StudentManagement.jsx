@@ -1,65 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const StudentManagement = ({ onBack, userRole }) => {
+const StudentManagement = ({ onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [students, setStudents] = useState([]);
   const [newStudent, setNewStudent] = useState({
     name: '',
-    studentId: '',
     email: '',
     contact: '',
-    parentContact: '',
     class: '',
-    section: ''
+    rollNumber: '',
+    parentName: '',
+    parentContact: ''
   });
 
-  // Load student data from localStorage when component loads
-  useEffect(() => {
-    const savedStudents = localStorage.getItem('schoolStudents');
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents));
-    }
-  }, []);
-
-  // Save student data to localStorage whenever students changes
-  useEffect(() => {
-    localStorage.setItem('schoolStudents', JSON.stringify(students));
-  }, [students]);
-
-  const handleAddStudent = (e) => {
-    e.preventDefault();
-    
-    if (newStudent.name && newStudent.studentId && newStudent.email) {
-      const studentData = {
+  const handleAddStudent = () => {
+    if (newStudent.name && newStudent.email && newStudent.contact && newStudent.class && newStudent.rollNumber) {
+      setStudents([...students, { 
+        ...newStudent, 
         id: Date.now(),
-        name: newStudent.name,
-        studentId: newStudent.studentId,
-        email: newStudent.email,
-        contact: newStudent.contact,
-        parentContact: newStudent.parentContact,
-        class: newStudent.class,
-        section: newStudent.section,
         dateAdded: new Date().toLocaleDateString()
-      };
-
-      // Add to student list
-      setStudents([...students, studentData]);
-      
-      // Reset form
+      }]);
       setNewStudent({ 
         name: '', 
-        studentId: '', 
         email: '', 
         contact: '', 
-        parentContact: '', 
         class: '', 
-        section: '' 
+        rollNumber: '', 
+        parentName: '', 
+        parentContact: '' 
       });
       setShowAddForm(false);
-      
-      alert('Student added successfully! ✅');
+      alert('Student added successfully!');
     } else {
-      alert('Please fill in Name, Student ID, and Email fields! ❌');
+      alert('Please fill in all required fields! ❌');
     }
   };
 
@@ -70,17 +43,38 @@ const StudentManagement = ({ onBack, userRole }) => {
     });
   };
 
-  const handleDeleteStudent = (id) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      const updatedStudents = students.filter(student => student.id !== id);
-      setStudents(updatedStudents);
-    }
+  const exportToJSON = () => {
+    const dataStr = JSON.stringify(students, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `students_${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
   };
 
-  // Filter students based on user role
-  const filteredStudents = userRole === 'teacher' 
-    ? students.filter(student => student.class === '10A' || student.class === '10B') // Example: Teacher only sees their classes
-    : students;
+  const importFromJSON = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (Array.isArray(importedData)) {
+          setStudents(importedData);
+          alert('Students imported successfully!');
+        } else {
+          alert('Invalid file format!');
+        }
+      } catch (error) {
+        alert('Error parsing JSON file!');
+      }
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div style={{ 
@@ -112,30 +106,66 @@ const StudentManagement = ({ onBack, userRole }) => {
             fontSize: "16px",
             margin: "0"
           }}>
-            Total Students: {filteredStudents.length}
-            {userRole === 'teacher' && ' (Filtered by your classes)'}
+            Total Students: {students.length}
           </p>
         </div>
         
-        <div>
-          {userRole === 'principal' && (
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {/* Export JSON Button */}
+          {students.length > 0 && (
             <button 
-              onClick={() => setShowAddForm(true)}
+              onClick={exportToJSON}
               style={{ 
-                padding: "10px 20px", 
-                background: "#27ae60", 
+                padding: "8px 15px", 
+                background: "#9b59b6", 
                 color: "white", 
                 border: "none", 
                 borderRadius: "6px",
-                fontSize: "14px",
+                fontSize: "12px",
                 fontWeight: "600",
-                cursor: "pointer",
-                marginRight: "10px"
+                cursor: "pointer"
               }}
+              title="Export to JSON"
             >
-              + Add Student
+              💾 Export JSON
             </button>
           )}
+          
+          {/* Import JSON Button */}
+          <label style={{ 
+            padding: "8px 15px", 
+            background: "#f39c12", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: "600",
+            cursor: "pointer"
+          }}>
+            📥 Import JSON
+            <input
+              type="file"
+              accept=".json"
+              onChange={importFromJSON}
+              style={{ display: 'none' }}
+            />
+          </label>
+
+          <button 
+            onClick={() => setShowAddForm(true)}
+            style={{ 
+              padding: "10px 20px", 
+              background: "#27ae60", 
+              color: "white", 
+              border: "none", 
+              borderRadius: "6px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
+          >
+            + Add Student
+          </button>
           <button 
             onClick={onBack}
             style={{ 
@@ -149,13 +179,13 @@ const StudentManagement = ({ onBack, userRole }) => {
               cursor: "pointer"
             }}
           >
-            ← Back to Dashboard
+            ← Back
           </button>
         </div>
       </div>
 
-      {/* Add Student Form Modal - Only for Principal */}
-      {showAddForm && userRole === 'principal' && (
+      {/* Add Student Form Modal */}
+      {showAddForm && (
         <div style={{
           position: "fixed",
           top: "0",
@@ -173,9 +203,7 @@ const StudentManagement = ({ onBack, userRole }) => {
             padding: "30px",
             borderRadius: "15px",
             boxShadow: "0px 8px 25px rgba(0,0,0,0.2)",
-            width: "400px",
-            maxHeight: "80vh",
-            overflowY: "auto"
+            width: "400px"
           }}>
             <h2 style={{ 
               color: "#2c3e50",
@@ -186,31 +214,13 @@ const StudentManagement = ({ onBack, userRole }) => {
               Add New Student
             </h2>
 
-            <form onSubmit={handleAddStudent}>
+            <form onSubmit={(e) => { e.preventDefault(); handleAddStudent(); }}>
               <div style={{ marginBottom: "15px" }}>
                 <input
                   type="text"
                   name="name"
                   placeholder="Full Name *"
                   value={newStudent.name}
-                  onChange={handleInputChange}
-                  required
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "15px" }}>
-                <input
-                  type="text"
-                  name="studentId"
-                  placeholder="Student ID *"
-                  value={newStudent.studentId}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -245,9 +255,10 @@ const StudentManagement = ({ onBack, userRole }) => {
                 <input
                   type="tel"
                   name="contact"
-                  placeholder="Student Contact Number"
+                  placeholder="Contact Number *"
                   value={newStudent.contact}
                   onChange={handleInputChange}
+                  required
                   style={{ 
                     width: "100%", 
                     padding: "12px", 
@@ -260,10 +271,10 @@ const StudentManagement = ({ onBack, userRole }) => {
 
               <div style={{ marginBottom: "15px" }}>
                 <input
-                  type="tel"
-                  name="parentContact"
-                  placeholder="Parent Contact Number *"
-                  value={newStudent.parentContact}
+                  type="text"
+                  name="class"
+                  placeholder="Class/Grade * (e.g., 10A)"
+                  value={newStudent.class}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -277,9 +288,11 @@ const StudentManagement = ({ onBack, userRole }) => {
               </div>
 
               <div style={{ marginBottom: "15px" }}>
-                <select
-                  name="class"
-                  value={newStudent.class}
+                <input
+                  type="text"
+                  name="rollNumber"
+                  placeholder="Roll Number *"
+                  value={newStudent.rollNumber}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -289,23 +302,15 @@ const StudentManagement = ({ onBack, userRole }) => {
                     borderRadius: "5px",
                     boxSizing: "border-box" 
                   }}
-                >
-                  <option value="">Select Class *</option>
-                  <option value="9A">Class 9A</option>
-                  <option value="9B">Class 9B</option>
-                  <option value="10A">Class 10A</option>
-                  <option value="10B">Class 10B</option>
-                  <option value="11A">Class 11A</option>
-                  <option value="11B">Class 11B</option>
-                  <option value="12A">Class 12A</option>
-                  <option value="12B">Class 12B</option>
-                </select>
+                />
               </div>
 
-              <div style={{ marginBottom: "25px" }}>
-                <select
-                  name="section"
-                  value={newStudent.section}
+              <div style={{ marginBottom: "15px" }}>
+                <input
+                  type="text"
+                  name="parentName"
+                  placeholder="Parent/Guardian Name"
+                  value={newStudent.parentName}
                   onChange={handleInputChange}
                   style={{ 
                     width: "100%", 
@@ -314,13 +319,24 @@ const StudentManagement = ({ onBack, userRole }) => {
                     borderRadius: "5px",
                     boxSizing: "border-box" 
                   }}
-                >
-                  <option value="">Select Section</option>
-                  <option value="A">Section A</option>
-                  <option value="B">Section B</option>
-                  <option value="C">Section C</option>
-                  <option value="D">Section D</option>
-                </select>
+                />
+              </div>
+
+              <div style={{ marginBottom: "25px" }}>
+                <input
+                  type="tel"
+                  name="parentContact"
+                  placeholder="Parent/Guardian Contact"
+                  value={newStudent.parentContact}
+                  onChange={handleInputChange}
+                  style={{ 
+                    width: "100%", 
+                    padding: "12px", 
+                    border: "1px solid #ddd",
+                    borderRadius: "5px",
+                    boxSizing: "border-box" 
+                  }}
+                />
               </div>
 
               <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
@@ -361,7 +377,7 @@ const StudentManagement = ({ onBack, userRole }) => {
         </div>
       )}
 
-      {/* Student List Display */}
+      {/* Student List */}
       <div style={{
         background: "white",
         padding: "25px",
@@ -374,111 +390,67 @@ const StudentManagement = ({ onBack, userRole }) => {
           fontSize: "22px",
           marginBottom: "20px",
           borderBottom: "2px solid #3498db",
-          paddingBottom: "10px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px"
+          paddingBottom: "10px"
         }}>
-          📊 Student Records ({filteredStudents.length})
-          {userRole === 'teacher' && (
-            <span style={{ 
-              fontSize: "14px", 
-              color: "#7f8c8d", 
-              fontWeight: "normal" 
-            }}>
-              (Showing only your classes)
-            </span>
-          )}
+          📋 Student List ({students.length})
         </h3>
 
-        {filteredStudents.length === 0 ? (
+        {students.length === 0 ? (
           <div style={{ 
             textAlign: "center", 
             padding: "40px", 
             color: "#7f8c8d" 
           }}>
-            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No students found</p>
-            <p>
-              {userRole === 'principal' 
-                ? 'Click "Add Student" to add your first student record'
-                : 'No students assigned to your classes yet'
-              }
-            </p>
+            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No students yet</p>
+            <p>Click "Add Student" to add your first student</p>
           </div>
         ) : (
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "20px"
           }}>
-            {filteredStudents.map((student) => (
+            {students.map((student) => (
               <div key={student.id} style={{
                 background: "#f8f9fa",
                 padding: "20px",
                 borderRadius: "8px",
-                border: "2px solid #e9ecef",
-                position: "relative"
+                border: "1px solid #e9ecef"
               }}>
-                {/* Delete Button - Only for Principal */}
-                {userRole === 'principal' && (
-                  <button
-                    onClick={() => handleDeleteStudent(student.id)}
-                    style={{
-                      position: "absolute",
-                      top: "10px",
-                      right: "10px",
-                      background: "#e74c3c",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "30px",
-                      height: "30px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontWeight: "bold"
-                    }}
-                    title="Delete Student"
-                  >
-                    ×
-                  </button>
-                )}
-                
                 <h4 style={{ 
                   color: "#2c3e50",
                   fontSize: "18px",
                   marginBottom: "15px",
-                  paddingRight: userRole === 'principal' ? "40px" : "0"
+                  paddingRight: "40px"
                 }}>
                   👤 {student.name}
-                  {student.class && (
-                    <span style={{ 
-                      fontSize: "14px", 
-                      color: "#7f8c8d", 
-                      marginLeft: "10px",
-                      fontWeight: "normal"
-                    }}>
-                      (Class {student.class}{student.section && ` - Section ${student.section}`})
-                    </span>
-                  )}
                 </h4>
-                
-                <p style={{ margin: "8px 0", color: "#34495e" }}>
-                  🆔 <strong>Student ID:</strong> {student.studentId}
-                </p>
                 
                 <p style={{ margin: "8px 0", color: "#34495e" }}>
                   📧 <strong>Email:</strong> {student.email}
                 </p>
                 
-                {student.contact && (
+                <p style={{ margin: "8px 0", color: "#34495e" }}>
+                  📞 <strong>Contact:</strong> {student.contact}
+                </p>
+                
+                <p style={{ margin: "8px 0", color: "#34495e" }}>
+                  🏫 <strong>Class:</strong> {student.class}
+                </p>
+                
+                <p style={{ margin: "8px 0", color: "#34495e" }}>
+                  🔢 <strong>Roll No:</strong> {student.rollNumber}
+                </p>
+                
+                {student.parentName && (
                   <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    📞 <strong>Student Contact:</strong> {student.contact}
+                    👨‍👩‍👧‍👦 <strong>Parent:</strong> {student.parentName}
                   </p>
                 )}
                 
                 {student.parentContact && (
                   <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    👨‍👩‍👧‍👦 <strong>Parent Contact:</strong> {student.parentContact}
+                    📱 <strong>Parent Contact:</strong> {student.parentContact}
                   </p>
                 )}
                 

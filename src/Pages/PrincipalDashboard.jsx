@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DashboardCard from './DashboardCard';
 import StaffManagement from './StaffManagement';
+import StudentManagement from './StudentManagement';
 
 const PrincipalDashboard = ({ user, onLogout }) => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -16,7 +17,7 @@ const PrincipalDashboard = ({ user, onLogout }) => {
       icon: "🎓",
       title: "Access Students",
       description: "View student profiles, manage enrollments, and track academic progress",
-      onClick: () => alert("Access Students functionality will be implemented here")
+      onClick: () => setCurrentPage('students') // This line connects to Student Management
     },
     {
       icon: "📅",
@@ -40,6 +41,10 @@ const PrincipalDashboard = ({ user, onLogout }) => {
 
   if (currentPage === 'staff') {
     return <StaffManagement onBack={() => setCurrentPage('dashboard')} />;
+  }
+
+  if (currentPage === 'students') {
+    return <StudentManagement onBack={() => setCurrentPage('dashboard')} />;
   }
 
   return (
