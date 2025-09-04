@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-import PrincipalDashboard from './PrincipalDashboard';
+import PrincipalDashboard from './PrincipalDashboard'; 
 
 function PrincipalLogin() {
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "574537872769-fcl2dmjh6mu8h7c3l6ne5s17fsnjqfjb.apps.googleusercontent.com";
