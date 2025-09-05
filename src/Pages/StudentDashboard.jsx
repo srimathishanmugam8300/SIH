@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import StudentManagement from './StudentManagement';
 
-const StudentDashboard = ({ user, onBack }) => {
+const PrincipalDashboard = ({ user, onBack }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main' or 'students'
 
   if (currentView === 'students') {
