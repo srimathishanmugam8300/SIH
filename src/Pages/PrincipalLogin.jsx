@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import  jwtDecode  from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import PrincipalDashboard from './PrincipalDashboard';
 
   function PrincipalLogin() {

@@ -15,12 +15,7 @@ const StaffManagement = ({ onBack }) => {
   useEffect(() => {
     const savedStaff = localStorage.getItem('schoolStaff');
     if (savedStaff) {
-      try {
-        setStaffMembers(JSON.parse(savedStaff));
-      } catch (error) {
-        console.error('Error parsing staff data:', error);
-        setStaffMembers([]);
-      }
+      setStaffMembers(JSON.parse(savedStaff));
     }
   }, []);
 
@@ -30,7 +25,7 @@ const StaffManagement = ({ onBack }) => {
   }, [staffMembers]);
 
   const handleAddStaff = (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
     
     if (newStaff.name && newStaff.email && newStaff.contact) {
       const staffData = {
@@ -40,18 +35,17 @@ const StaffManagement = ({ onBack }) => {
         contact: newStaff.contact,
         classes: newStaff.classes,
         subject: newStaff.subject,
-        dateAdded: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+        dateAdded: new Date().toLocaleDateString()
       };
 
       // Add to staff list
-      setStaffMembers(prevStaff => [...prevStaff, staffData]);
+      setStaffMembers([...staffMembers, staffData]);
       
       // Reset form
       setNewStaff({ name: '', email: '', contact: '', classes: '', subject: '' });
       setShowAddForm(false);
       
-      // Show success message without alert
-      console.log('Staff member added successfully!', staffData);
+      alert('Staff member added successfully! ✅');
     } else {
       alert('Please fill in Name, Email, and Contact fields! ❌');
     }
@@ -68,41 +62,6 @@ const StaffManagement = ({ onBack }) => {
     if (window.confirm('Are you sure you want to delete this staff member?')) {
       const updatedStaff = staffMembers.filter(staff => staff.id !== id);
       setStaffMembers(updatedStaff);
-    }
-  };
-
-  // Export staff data as JSON file
-  const exportToJSON = () => {
-    const dataStr = JSON.stringify(staffMembers, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = 'staff_data.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
-
-  // Import staff data from JSON file
-  const importFromJSON = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (Array.isArray(importedData)) {
-            setStaffMembers(importedData);
-            alert('Staff data imported successfully! ✅');
-          } else {
-            alert('Invalid JSON format! ❌');
-          }
-        } catch (error) {
-          alert('Error parsing JSON file! ❌');
-        }
-      };
-      reader.readAsText(file);
     }
   };
 
@@ -140,47 +99,7 @@ const StaffManagement = ({ onBack }) => {
           </p>
         </div>
         
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          {/* Export JSON Button */}
-          {staffMembers.length > 0 && (
-            <button 
-              onClick={exportToJSON}
-              style={{ 
-                padding: "8px 15px", 
-                background: "#9b59b6", 
-                color: "white", 
-                border: "none", 
-                borderRadius: "6px",
-                fontSize: "12px",
-                fontWeight: "600",
-                cursor: "pointer"
-              }}
-              title="Export to JSON"
-            >
-              💾 Export JSON
-            </button>
-          )}
-          
-          {/* Import JSON Button */}
-          <label style={{ 
-            padding: "8px 15px", 
-            background: "#f39c12", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "6px",
-            fontSize: "12px",
-            fontWeight: "600",
-            cursor: "pointer"
-          }}>
-            📥 Import JSON
-            <input
-              type="file"
-              accept=".json"
-              onChange={importFromJSON}
-              style={{ display: 'none' }}
-            />
-          </label>
-
+        <div>
           <button 
             onClick={() => setShowAddForm(true)}
             style={{ 
@@ -191,7 +110,8 @@ const StaffManagement = ({ onBack }) => {
               borderRadius: "6px",
               fontSize: "14px",
               fontWeight: "600",
-              cursor: "pointer"
+              cursor: "pointer",
+              marginRight: "10px"
             }}
           >
             + Add Staff
@@ -371,7 +291,7 @@ const StaffManagement = ({ onBack }) => {
         </div>
       )}
 
-      {/* Staff List Display */}
+      {/* Staff List Display - Shows below everything */}
       <div style={{
         background: "white",
         padding: "25px",
@@ -412,6 +332,7 @@ const StaffManagement = ({ onBack }) => {
                 border: "2px solid #e9ecef",
                 position: "relative"
               }}>
+                {/* Delete Button */}
                 <button
                   onClick={() => handleDeleteStaff(staff.id)}
                   style={{
