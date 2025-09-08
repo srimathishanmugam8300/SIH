@@ -1,68 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const StaffManagement = ({ onBack }) => {
+const StudentManagement = ({ onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [staffMembers, setStaffMembers] = useState([]);
-  const [newStaff, setNewStaff] = useState({
+  const [students, setStudents] = useState([]);
+  const [newStudent, setNewStudent] = useState({
     name: '',
     email: '',
     contact: '',
-    classes: '',
-    subject: ''
+    class: '',
+    rollNumber: '',
+    parentName: '',
+    parentContact: ''
   });
 
-  // Load staff data from localStorage when component loads
-  useEffect(() => {
-    const savedStaff = localStorage.getItem('schoolStaff');
-    if (savedStaff) {
-      setStaffMembers(JSON.parse(savedStaff));
-    }
-  }, []);
-
-  // Save staff data to localStorage whenever staffMembers changes
-  useEffect(() => {
-    localStorage.setItem('schoolStaff', JSON.stringify(staffMembers));
-  }, [staffMembers]);
-
-  const handleAddStaff = (e) => {
-    e.preventDefault();
-    
-    if (newStaff.name && newStaff.email && newStaff.contact) {
-      const staffData = {
+  const handleAddStudent = () => {
+    if (newStudent.name && newStudent.email && newStudent.contact && newStudent.class && newStudent.rollNumber) {
+      setStudents([...students, { 
+        ...newStudent, 
         id: Date.now(),
-        name: newStaff.name,
-        email: newStaff.email,
-        contact: newStaff.contact,
-        classes: newStaff.classes,
-        subject: newStaff.subject,
         dateAdded: new Date().toLocaleDateString()
-      };
-
-      // Add to staff list
-      setStaffMembers([...staffMembers, staffData]);
-      
-      // Reset form
-      setNewStaff({ name: '', email: '', contact: '', classes: '', subject: '' });
+      }]);
+      setNewStudent({ 
+        name: '', 
+        email: '', 
+        contact: '', 
+        class: '', 
+        rollNumber: '', 
+        parentName: '', 
+        parentContact: '' 
+      });
       setShowAddForm(false);
-      
-      alert('Staff member added successfully! ✅');
+      alert('Student added successfully!');
     } else {
-      alert('Please fill in Name, Email, and Contact fields! ❌');
+      alert('Please fill in all required fields! ❌');
     }
   };
 
   const handleInputChange = (e) => {
-    setNewStaff({
-      ...newStaff,
+    setNewStudent({
+      ...newStudent,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleDeleteStaff = (id) => {
-    if (window.confirm('Are you sure you want to delete this staff member?')) {
-      const updatedStaff = staffMembers.filter(staff => staff.id !== id);
-      setStaffMembers(updatedStaff);
-    }
+  const exportToJSON = () => {
+    const dataStr = JSON.stringify(students, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `students_${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  const importFromJSON = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (Array.isArray(importedData)) {
+          setStudents(importedData);
+          alert('Students imported successfully!');
+        } else {
+          alert('Invalid file format!');
+        }
+      } catch (error) {
+        alert('Error parsing JSON file!');
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -88,18 +99,58 @@ const StaffManagement = ({ onBack }) => {
             fontSize: "28px",
             marginBottom: "5px"
           }}>
-            Staff Management
+            Student Management
           </h1>
           <p style={{ 
             color: "#7f8c8d",
             fontSize: "16px",
             margin: "0"
           }}>
-            Total Staff Members: {staffMembers.length}
+            Total Students: {students.length}
           </p>
         </div>
         
-        <div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {/* Export JSON Button */}
+          {students.length > 0 && (
+            <button 
+              onClick={exportToJSON}
+              style={{ 
+                padding: "8px 15px", 
+                background: "#9b59b6", 
+                color: "white", 
+                border: "none", 
+                borderRadius: "6px",
+                fontSize: "12px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+              title="Export to JSON"
+            >
+              💾 Export JSON
+            </button>
+          )}
+          
+          {/* Import JSON Button */}
+          <label style={{ 
+            padding: "8px 15px", 
+            background: "#f39c12", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: "600",
+            cursor: "pointer"
+          }}>
+            📥 Import JSON
+            <input
+              type="file"
+              accept=".json"
+              onChange={importFromJSON}
+              style={{ display: 'none' }}
+            />
+          </label>
+
           <button 
             onClick={() => setShowAddForm(true)}
             style={{ 
@@ -110,11 +161,10 @@ const StaffManagement = ({ onBack }) => {
               borderRadius: "6px",
               fontSize: "14px",
               fontWeight: "600",
-              cursor: "pointer",
-              marginRight: "10px"
+              cursor: "pointer"
             }}
           >
-            + Add Staff
+            + Add Student
           </button>
           <button 
             onClick={onBack}
@@ -134,7 +184,7 @@ const StaffManagement = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Add Staff Form Modal */}
+      {/* Add Student Form Modal */}
       {showAddForm && (
         <div style={{
           position: "fixed",
@@ -161,16 +211,16 @@ const StaffManagement = ({ onBack }) => {
               marginBottom: "20px",
               textAlign: "center"
             }}>
-              Add New Staff Member
+              Add New Student
             </h2>
 
-            <form onSubmit={handleAddStaff}>
+            <form onSubmit={(e) => { e.preventDefault(); handleAddStudent(); }}>
               <div style={{ marginBottom: "15px" }}>
                 <input
                   type="text"
                   name="name"
                   placeholder="Full Name *"
-                  value={newStaff.name}
+                  value={newStudent.name}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -188,7 +238,7 @@ const StaffManagement = ({ onBack }) => {
                   type="email"
                   name="email"
                   placeholder="Email Address *"
-                  value={newStaff.email}
+                  value={newStudent.email}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -206,7 +256,7 @@ const StaffManagement = ({ onBack }) => {
                   type="tel"
                   name="contact"
                   placeholder="Contact Number *"
-                  value={newStaff.contact}
+                  value={newStudent.contact}
                   onChange={handleInputChange}
                   required
                   style={{ 
@@ -222,9 +272,45 @@ const StaffManagement = ({ onBack }) => {
               <div style={{ marginBottom: "15px" }}>
                 <input
                   type="text"
-                  name="classes"
-                  placeholder="Classes Handled (e.g., 10A, 10B)"
-                  value={newStaff.classes}
+                  name="class"
+                  placeholder="Class/Grade * (e.g., 10A)"
+                  value={newStudent.class}
+                  onChange={handleInputChange}
+                  required
+                  style={{ 
+                    width: "100%", 
+                    padding: "12px", 
+                    border: "1px solid #ddd",
+                    borderRadius: "5px",
+                    boxSizing: "border-box" 
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: "15px" }}>
+                <input
+                  type="text"
+                  name="rollNumber"
+                  placeholder="Roll Number *"
+                  value={newStudent.rollNumber}
+                  onChange={handleInputChange}
+                  required
+                  style={{ 
+                    width: "100%", 
+                    padding: "12px", 
+                    border: "1px solid #ddd",
+                    borderRadius: "5px",
+                    boxSizing: "border-box" 
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: "15px" }}>
+                <input
+                  type="text"
+                  name="parentName"
+                  placeholder="Parent/Guardian Name"
+                  value={newStudent.parentName}
                   onChange={handleInputChange}
                   style={{ 
                     width: "100%", 
@@ -238,10 +324,10 @@ const StaffManagement = ({ onBack }) => {
 
               <div style={{ marginBottom: "25px" }}>
                 <input
-                  type="text"
-                  name="subject"
-                  placeholder="Subject Handled (e.g., Mathematics, Science)"
-                  value={newStaff.subject}
+                  type="tel"
+                  name="parentContact"
+                  placeholder="Parent/Guardian Contact"
+                  value={newStudent.parentContact}
                   onChange={handleInputChange}
                   style={{ 
                     width: "100%", 
@@ -267,7 +353,7 @@ const StaffManagement = ({ onBack }) => {
                     cursor: "pointer"
                   }}
                 >
-                  Add Staff
+                  Add Student
                 </button>
                 <button 
                   type="button"
@@ -291,7 +377,7 @@ const StaffManagement = ({ onBack }) => {
         </div>
       )}
 
-      {/* Staff List Display - Shows below everything */}
+      {/* Student List */}
       <div style={{
         background: "white",
         padding: "25px",
@@ -306,17 +392,17 @@ const StaffManagement = ({ onBack }) => {
           borderBottom: "2px solid #3498db",
           paddingBottom: "10px"
         }}>
-          📋 Staff Members List ({staffMembers.length})
+          📋 Student List ({students.length})
         </h3>
 
-        {staffMembers.length === 0 ? (
+        {students.length === 0 ? (
           <div style={{ 
             textAlign: "center", 
             padding: "40px", 
             color: "#7f8c8d" 
           }}>
-            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No staff members yet</p>
-            <p>Click "Add Staff" to add your first staff member</p>
+            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No students yet</p>
+            <p>Click "Add Student" to add your first student</p>
           </div>
         ) : (
           <div style={{
@@ -324,62 +410,47 @@ const StaffManagement = ({ onBack }) => {
             gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "20px"
           }}>
-            {staffMembers.map((staff) => (
-              <div key={staff.id} style={{
+            {students.map((student) => (
+              <div key={student.id} style={{
                 background: "#f8f9fa",
                 padding: "20px",
                 borderRadius: "8px",
-                border: "2px solid #e9ecef",
-                position: "relative"
+                border: "1px solid #e9ecef"
               }}>
-                {/* Delete Button */}
-                <button
-                  onClick={() => handleDeleteStaff(staff.id)}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    background: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: "30px",
-                    height: "30px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold"
-                  }}
-                  title="Delete Staff"
-                >
-                  ×
-                </button>
-                
                 <h4 style={{ 
                   color: "#2c3e50",
                   fontSize: "18px",
                   marginBottom: "15px",
                   paddingRight: "40px"
                 }}>
-                  👤 {staff.name}
+                  👤 {student.name}
                 </h4>
                 
                 <p style={{ margin: "8px 0", color: "#34495e" }}>
-                  📧 <strong>Email:</strong> {staff.email}
+                  📧 <strong>Email:</strong> {student.email}
                 </p>
                 
                 <p style={{ margin: "8px 0", color: "#34495e" }}>
-                  📞 <strong>Contact:</strong> {staff.contact}
+                  📞 <strong>Contact:</strong> {student.contact}
                 </p>
                 
-                {staff.classes && (
+                <p style={{ margin: "8px 0", color: "#34495e" }}>
+                  🏫 <strong>Class:</strong> {student.class}
+                </p>
+                
+                <p style={{ margin: "8px 0", color: "#34495e" }}>
+                  🔢 <strong>Roll No:</strong> {student.rollNumber}
+                </p>
+                
+                {student.parentName && (
                   <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    🏫 <strong>Classes:</strong> {staff.classes}
+                    👨‍👩‍👧‍👦 <strong>Parent:</strong> {student.parentName}
                   </p>
                 )}
                 
-                {staff.subject && (
+                {student.parentContact && (
                   <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    📚 <strong>Subject:</strong> {staff.subject}
+                    📱 <strong>Parent Contact:</strong> {student.parentContact}
                   </p>
                 )}
                 
@@ -391,7 +462,7 @@ const StaffManagement = ({ onBack }) => {
                   borderTop: "1px solid #ddd",
                   paddingTop: "10px"
                 }}>
-                  Added on: {staff.dateAdded}
+                  Added on: {student.dateAdded}
                 </p>
               </div>
             ))}
@@ -402,4 +473,4 @@ const StaffManagement = ({ onBack }) => {
   );
 };
 
-export default StaffManagement;
+export default StudentManagement;
