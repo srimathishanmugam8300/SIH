@@ -1,11 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 import DashboardCard from './DashboardCard';
 import StaffManagement from './StaffManagement';
-import StudentManagement from './StudentManagement';
 
-const PrincipalDashboard = ({ user, onLogout }) => {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+const PrincipalDashboard = ({ user, onLogout, currentPage, setCurrentPage }) => {
+  // Add a safety check for undefined user
+  if (!user) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        backgroundColor: "#f4f6f8"
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
+  if (currentPage === 'staff') {
+    return <StaffManagement onBack={() => setCurrentPage('dashboard')} />;
+  }
+
+  // Dashboard items array
   const dashboardItems = [
     {
       icon: "👥",
@@ -17,7 +34,7 @@ const PrincipalDashboard = ({ user, onLogout }) => {
       icon: "🎓",
       title: "Access Students",
       description: "View student profiles, manage enrollments, and track academic progress",
-      onClick: () => setCurrentPage('students') // This line connects to Student Management
+      onClick: () => alert("Access Students functionality will be implemented here")
     },
     {
       icon: "📅",
@@ -38,14 +55,6 @@ const PrincipalDashboard = ({ user, onLogout }) => {
       onClick: () => alert("Access Activities functionality will be implemented here")
     }
   ];
-
-  if (currentPage === 'staff') {
-    return <StaffManagement onBack={() => setCurrentPage('dashboard')} />;
-  }
-
-  if (currentPage === 'students') {
-    return <StudentManagement onBack={() => setCurrentPage('dashboard')} />;
-  }
 
   return (
     <div style={{ 
@@ -68,7 +77,7 @@ const PrincipalDashboard = ({ user, onLogout }) => {
           marginBottom: "8px",
           fontWeight: "600"
         }}>
-          Welcome, {user.name || user.username}!
+          Welcome, {user?.name || user?.username || 'User'}!
         </h1>
         
         <p style={{ 

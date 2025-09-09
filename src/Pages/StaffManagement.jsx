@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const StaffManagement = ({ onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -11,43 +11,14 @@ const StaffManagement = ({ onBack }) => {
     subject: ''
   });
 
-  // Load staff data from localStorage when component loads
-  useEffect(() => {
-    const savedStaff = localStorage.getItem('schoolStaff');
-    if (savedStaff) {
-      setStaffMembers(JSON.parse(savedStaff));
-    }
-  }, []);
-
-  // Save staff data to localStorage whenever staffMembers changes
-  useEffect(() => {
-    localStorage.setItem('schoolStaff', JSON.stringify(staffMembers));
-  }, [staffMembers]);
-
-  const handleAddStaff = (e) => {
-    e.preventDefault();
-    
+  const handleAddStaff = () => {
     if (newStaff.name && newStaff.email && newStaff.contact) {
-      const staffData = {
-        id: Date.now(),
-        name: newStaff.name,
-        email: newStaff.email,
-        contact: newStaff.contact,
-        classes: newStaff.classes,
-        subject: newStaff.subject,
-        dateAdded: new Date().toLocaleDateString()
-      };
-
-      // Add to staff list
-      setStaffMembers([...staffMembers, staffData]);
-      
-      // Reset form
+      setStaffMembers([...staffMembers, { ...newStaff, id: Date.now() }]);
       setNewStaff({ name: '', email: '', contact: '', classes: '', subject: '' });
       setShowAddForm(false);
-      
-      alert('Staff member added successfully! ✅');
+      alert('Staff member added successfully!');
     } else {
-      alert('Please fill in Name, Email, and Contact fields! ❌');
+      alert('Please fill in all required fields (Name, Email, Contact)');
     }
   };
 
@@ -56,13 +27,6 @@ const StaffManagement = ({ onBack }) => {
       ...newStaff,
       [e.target.name]: e.target.value
     });
-  };
-
-  const handleDeleteStaff = (id) => {
-    if (window.confirm('Are you sure you want to delete this staff member?')) {
-      const updatedStaff = staffMembers.filter(staff => staff.id !== id);
-      setStaffMembers(updatedStaff);
-    }
   };
 
   return (
@@ -95,7 +59,7 @@ const StaffManagement = ({ onBack }) => {
             fontSize: "16px",
             margin: "0"
           }}>
-            Total Staff Members: {staffMembers.length}
+            Manage teaching and non-teaching staff members
           </p>
         </div>
         
@@ -164,149 +128,140 @@ const StaffManagement = ({ onBack }) => {
               Add New Staff Member
             </h2>
 
-            <form onSubmit={handleAddStaff}>
-              <div style={{ marginBottom: "15px" }}>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Full Name *"
-                  value={newStaff.name}
-                  onChange={handleInputChange}
-                  required
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name *"
+                value={newStaff.name}
+                onChange={handleInputChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+            </div>
 
-              <div style={{ marginBottom: "15px" }}>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email Address *"
-                  value={newStaff.email}
-                  onChange={handleInputChange}
-                  required
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address *"
+                value={newStaff.email}
+                onChange={handleInputChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+            </div>
 
-              <div style={{ marginBottom: "15px" }}>
-                <input
-                  type="tel"
-                  name="contact"
-                  placeholder="Contact Number *"
-                  value={newStaff.contact}
-                  onChange={handleInputChange}
-                  required
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="tel"
+                name="contact"
+                placeholder="Contact Number *"
+                value={newStaff.contact}
+                onChange={handleInputChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+            </div>
 
-              <div style={{ marginBottom: "15px" }}>
-                <input
-                  type="text"
-                  name="classes"
-                  placeholder="Classes Handled (e.g., 10A, 10B)"
-                  value={newStaff.classes}
-                  onChange={handleInputChange}
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="text"
+                name="classes"
+                placeholder="Classes Handled (e.g., 10A, 10B)"
+                value={newStaff.classes}
+                onChange={handleInputChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+            </div>
 
-              <div style={{ marginBottom: "25px" }}>
-                <input
-                  type="text"
-                  name="subject"
-                  placeholder="Subject Handled (e.g., Mathematics, Science)"
-                  value={newStaff.subject}
-                  onChange={handleInputChange}
-                  style={{ 
-                    width: "100%", 
-                    padding: "12px", 
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    boxSizing: "border-box" 
-                  }}
-                />
-              </div>
+            <div style={{ marginBottom: "25px" }}>
+              <input
+                type="text"
+                name="subject"
+                placeholder="Subject Handled (e.g., Mathematics, Science)"
+                value={newStaff.subject}
+                onChange={handleInputChange}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+            </div>
 
-              <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                <button 
-                  type="submit"
-                  style={{ 
-                    padding: "12px 25px", 
-                    background: "#27ae60", 
-                    color: "white", 
-                    border: "none", 
-                    borderRadius: "5px",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    cursor: "pointer"
-                  }}
-                >
-                  Add Staff
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setShowAddForm(false)}
-                  style={{ 
-                    padding: "12px 25px", 
-                    background: "#95a5a6", 
-                    color: "white", 
-                    border: "none", 
-                    borderRadius: "5px",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    cursor: "pointer"
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button 
+                onClick={handleAddStaff}
+                style={{ 
+                  padding: "12px 25px", 
+                  background: "#27ae60", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Add Staff
+              </button>
+              <button 
+                onClick={() => setShowAddForm(false)}
+                style={{ 
+                  padding: "12px 25px", 
+                  background: "#95a5a6", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "5px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Staff List Display - Shows below everything */}
+      {/* Staff List */}
       <div style={{
         background: "white",
         padding: "25px",
         borderRadius: "10px",
-        boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-        marginTop: "20px"
+        boxShadow: "0px 4px 12px rgba(0,0,0,0.1)"
       }}>
         <h3 style={{ 
           color: "#2c3e50",
-          fontSize: "22px",
-          marginBottom: "20px",
-          borderBottom: "2px solid #3498db",
-          paddingBottom: "10px"
+          fontSize: "20px",
+          marginBottom: "20px"
         }}>
-          📋 Staff Members List ({staffMembers.length})
+          Staff Members ({staffMembers.length})
         </h3>
 
         {staffMembers.length === 0 ? (
@@ -315,8 +270,8 @@ const StaffManagement = ({ onBack }) => {
             padding: "40px", 
             color: "#7f8c8d" 
           }}>
-            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No staff members yet</p>
-            <p>Click "Add Staff" to add your first staff member</p>
+            <p style={{ fontSize: "18px", marginBottom: "10px" }}>No staff members added yet</p>
+            <p>Click "Add Staff" to add new staff members</p>
           </div>
         ) : (
           <div style={{
@@ -329,70 +284,31 @@ const StaffManagement = ({ onBack }) => {
                 background: "#f8f9fa",
                 padding: "20px",
                 borderRadius: "8px",
-                border: "2px solid #e9ecef",
-                position: "relative"
+                border: "1px solid #e9ecef"
               }}>
-                {/* Delete Button */}
-                <button
-                  onClick={() => handleDeleteStaff(staff.id)}
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    background: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: "30px",
-                    height: "30px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold"
-                  }}
-                  title="Delete Staff"
-                >
-                  ×
-                </button>
-                
                 <h4 style={{ 
                   color: "#2c3e50",
                   fontSize: "18px",
-                  marginBottom: "15px",
-                  paddingRight: "40px"
+                  marginBottom: "10px"
                 }}>
-                  👤 {staff.name}
+                  {staff.name}
                 </h4>
-                
-                <p style={{ margin: "8px 0", color: "#34495e" }}>
-                  📧 <strong>Email:</strong> {staff.email}
+                <p style={{ margin: "5px 0", color: "#7f8c8d" }}>
+                  📧 {staff.email}
                 </p>
-                
-                <p style={{ margin: "8px 0", color: "#34495e" }}>
-                  📞 <strong>Contact:</strong> {staff.contact}
+                <p style={{ margin: "5px 0", color: "#7f8c8d" }}>
+                  📞 {staff.contact}
                 </p>
-                
                 {staff.classes && (
-                  <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    🏫 <strong>Classes:</strong> {staff.classes}
+                  <p style={{ margin: "5px 0", color: "#7f8c8d" }}>
+                    🏫 Classes: {staff.classes}
                   </p>
                 )}
-                
                 {staff.subject && (
-                  <p style={{ margin: "8px 0", color: "#34495e" }}>
-                    📚 <strong>Subject:</strong> {staff.subject}
+                  <p style={{ margin: "5px 0", color: "#7f8c8d" }}>
+                    📚 Subject: {staff.subject}
                   </p>
                 )}
-                
-                <p style={{ 
-                  margin: "15px 0 0 0", 
-                  fontSize: "12px", 
-                  color: "#95a5a6",
-                  fontStyle: "italic",
-                  borderTop: "1px solid #ddd",
-                  paddingTop: "10px"
-                }}>
-                  Added on: {staff.dateAdded}
-                </p>
               </div>
             ))}
           </div>
