@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from "jwt-decode";
-import PrincipalDashboard from './PrincipalDashboard';
+  import React, { useState, useEffect } from "react";
+  import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+  import { jwtDecode } from "jwt-decode";
+  import { useNavigate } from "react-router-dom";
+  import PrincipalDashboard from "./PrincipalDashboard";
 
 function PrincipalLogin() {
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "574537872769-fcl2dmjh6mu8h7c3l6ne5s17fsnjqfjb.apps.googleusercontent.com";
@@ -176,8 +177,6 @@ function PrincipalLogin() {
       setName("");
       setEmail("");
     }}
-    currentPage={currentPage} // Add this line
-    setCurrentPage={setCurrentPage}
   />
 );
 
@@ -434,7 +433,7 @@ function PrincipalLogin() {
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                disabled={isLoading}
+                disabled极={isLoading}
                 style={{ 
                   width: "100%", 
                   padding: "12px", 
