@@ -1,8 +1,7 @@
-  import React, { useState, useEffect } from "react";
-  import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-  import { jwtDecode } from "jwt-decode";
-  import { useNavigate } from "react-router-dom";
-  import PrincipalDashboard from "./PrincipalDashboard";
+import React, { useState } from "react";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from "jwt-decode";
+import PrincipalDashboard from './PrincipalDashboard';
 
 function PrincipalLogin() {
   const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "574537872769-fcl2dmjh6mu8h7c3l6ne5s17fsnjqfjb.apps.googleusercontent.com";
@@ -20,6 +19,7 @@ function PrincipalLogin() {
   const [authMethod, setAuthMethod] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
+
   const handleRoleSelection = (role) => {
     setSelectedRole(role);
     setUsername("");
@@ -50,7 +50,6 @@ function PrincipalLogin() {
       alert(`Login Successful as ${selectedRole.toUpperCase()}! ✅`);
       setIsLoading(false);
       setIsLoggedIn(true);
-       setCurrentPage('dashboard');
     }, 1000);
   };
 
@@ -88,6 +87,7 @@ function PrincipalLogin() {
         setIsLoading(false);
         setIsLogin(true);
         setSelectedRole(null);
+         setCurrentPage('dashboard');
       } else {
         setRegistrationStatus(`pending_${selectedRole}`);
         setIsLoading(false);
@@ -177,6 +177,8 @@ function PrincipalLogin() {
       setName("");
       setEmail("");
     }}
+      currentPage={currentPage}
+    setCurrentPage={setCurrentPage}
   />
 );
 
@@ -433,7 +435,7 @@ function PrincipalLogin() {
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                disabled极={isLoading}
+                disabled={isLoading}
                 style={{ 
                   width: "100%", 
                   padding: "12px", 

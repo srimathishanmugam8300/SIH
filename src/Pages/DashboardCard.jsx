@@ -8,35 +8,25 @@ const DashboardCard = ({ icon, title, description, onClick }) => {
         padding: "30px",
         borderRadius: "15px",
         boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-        marginBottom: "30px",
-        textAlign: "left"
-      }}>
-        <h1 style={{ 
-          color: "#2c3e50",
-          fontSize: "32px",
-          marginBottom: "8px",
-          fontWeight: "600"
-        }}>
-          Welcome, {user.name || user.username}!
-        </h1>
-        
-        <p style={{ 
-          fontSize: "18px",
-          color: "#7f8c8d",
-          marginBottom: "0",
-          fontWeight: "500"
-        }}>
-          Principal Dashboard
-        </p>
-      </div>
-
-      {/* Top Row - 3 Grids */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "25px",
-        maxWidth: "1000px",
-        margin: "0 auto 25px auto"
+        textAlign: "center",
+        cursor: "pointer",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        border: "2px solid #3498db"
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-5px)";
+        e.target.style.boxShadow = "0px 8px 20px rgba(52, 152, 219, 0.3)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
+        e.target.style.boxShadow = "0px 4px 12px rgba(0,0,0,0.1)";
+      }}
+      onClick={onClick}
+    >
+      <div style={{ 
+        fontSize: "48px", 
+        color: "#3498db",
+        marginBottom: "20px" 
       }}>
         {icon}
       </div>

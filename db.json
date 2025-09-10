@@ -1,0 +1,34 @@
+{
+  "staff": [
+    {
+      "id": "6aac",
+      "name": "Sid",
+      "email": "kgtm@gmail.com",
+      "contact": "9849849049",
+      "classes": "1A,2C",
+      "subject": "Maths",
+      "dateAdded": "9/10/2025"
+    },
+    {
+      "id": "f1c0",
+      "name": "jujoi",
+      "email": "kgtm@gmail.com",
+      "contact": "567890654",
+      "classes": "1A,2C",
+      "subject": "Maths",
+      "dateAdded": "9/10/2025"
+    }
+  ],
+  "students": [],
+  "users": [
+    {
+      "id": "1",
+      "name": "Admin Principal",
+      "email": "principal@school.com",
+      "password": "principal123",
+      "role": "principal",
+      "status": "approved"
+    }
+  ],
+  "pendingApprovals": []
+}

@@ -1,159 +1,716 @@
-import React from 'react';
-import DashboardCard from './DashboardCard';
-import StaffManagement from './StaffManagement';
+import React, { useState } from "react";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import  {jwtDecode}  from "jwt-decode";
+import PrincipalDashboard from './PrincipalDashboard';
 
-const PrincipalDashboard = ({ user, onLogout, currentPage, setCurrentPage }) => {
-  // Add a safety check for undefined user
-  if (!user) {
+function PrincipalLogin() {
+  const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "574537872769-fcl2dmjh6mu8h7c3l6ne5s17fsnjqfjb.apps.googleusercontent.com";
+
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [registrationStatus, setRegistrationStatus] = useState("");
+  const [authMethod, setAuthMethod] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const handleRoleSelection = (role) => {
+    setSelectedRole(role);
+    setUsername("");
+    setPassword("");
+    setError("");
+    setRegistrationStatus("");
+    setAuthMethod("");
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setError("");
+    setRegistrationStatus("");
+
+    if (!selectedRole) {
+      setError("Please select a role first");
+      return;
+    }
+
+    if (!username.trim() || !password.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true);
+
+    setTimeout(() => {
+      alert(`Login Successful as ${selectedRole.toUpperCase()}! ✅`);
+      setIsLoading(false);
+      setIsLoggedIn(true);
+    }, 1000);
+  };
+
+  const handleEmailSignup = (e) => {
+    e.preventDefault();
+    setError("");
+    setRegistrationStatus("");
+    setAuthMethod("email");
+
+    if (!selectedRole) {
+      setError("Please select a role");
+      return;
+    }
+
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    setIsLoading(true);
+
+    setTimeout(() => {
+      if (selectedRole === 'principal') {
+        alert(`Registration Successful as PRINCIPAL! ✅\nName: ${name}\nEmail: ${email}`);
+        setIsLoading(false);
+        setIsLogin(true);
+        setSelectedRole(null);
+         setCurrentPage('dashboard');
+      } else {
+        setRegistrationStatus(`pending_${selectedRole}`);
+        setIsLoading(false);
+      }
+    }, 1000);
+  };
+
+  const handleGoogleSuccess = (credentialResponse) => {
+    setAuthMethod("google");
+    setError("");
+    
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      const { name, email } = decoded;
+
+      setName(name);
+      setEmail(email);
+
+      setIsLoading(true);
+
+      setTimeout(() => {
+        if (selectedRole === 'principal') {
+          alert(`Google Login Successful as PRINCIPAL! ✅\nName: ${name}\nEmail: ${email}`);
+          setIsLoading(false);
+          setIsLoggedIn(true);
+           setCurrentPage('dashboard');
+        } else {
+          setRegistrationStatus(`pending_${selectedRole}`);
+          setIsLoading(false);
+        }
+      }, 1000);
+
+    } catch (error) {
+      setError("Failed to authenticate with Google. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google authentication failed. Please try again.");
+  };
+
+  const handleBackToRoleSelection = () => {
+    setSelectedRole(null);
+    setUsername("");
+    setPassword("");
+    setError("");
+    setRegistrationStatus("");
+    setAuthMethod("");
+  };
+
+  const handleBackToLogin = () => {
+    setIsLogin(true);
+    setSelectedRole(null);
+    setUsername("");
+    setPassword("");
+    setName("");
+    setEmail("");
+    setConfirmPassword("");
+    setError("");
+    setRegistrationStatus("");
+    setAuthMethod("");
+  };
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+    setSelectedRole(null);
+    setUsername("");
+    setPassword("");
+    setName("");
+    setEmail("");
+    setConfirmPassword("");
+    setError("");
+    setRegistrationStatus("");
+    setAuthMethod("");
+  };
+
+ const Dashboard = () => (
+  <PrincipalDashboard
+    user={{ name, username }}
+    onLogout={() => {
+      setIsLoggedIn(false);
+      setIsLogin(true);
+      setSelectedRole(null);
+      setUsername("");
+      setPassword("");
+      setName("");
+      setEmail("");
+    }}
+      currentPage={currentPage}
+    setCurrentPage={setCurrentPage}
+  />
+);
+
+
+  if (isLoggedIn) {
+    return <Dashboard />;
+  }
+
+  if (registrationStatus.startsWith('pending_')) {
+    const pendingRole = registrationStatus.replace('pending_', '');
+    
     return (
       <div style={{ 
         display: "flex", 
         justifyContent: "center", 
         alignItems: "center", 
         height: "100vh",
-        backgroundColor: "#f4f6f8"
+        backgroundColor: "#f4f6f8",
+        flexDirection: "column"
       }}>
-        <div>Loading...</div>
+        <div style={{ 
+          background: "white", 
+          padding: "40px", 
+          borderRadius: "15px", 
+          boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
+          textAlign: "center",
+          width: "400px"
+        }}>
+          <div style={{ color: "#27ae60", fontSize: "64px", marginBottom: "20px" }}>
+            ✓
+          </div>
+          
+          <h2 style={{ 
+            textAlign: "center", 
+            marginBottom: "20px", 
+            color: "#2c3e50",
+            fontSize: "24px"
+          }}>
+            {authMethod === 'google' ? 'Google Registration Complete' : 'Registration Submitted for Approval'}
+          </h2>
+          
+          <p style={{ 
+            marginBottom: "25px", 
+            color: "#7f8c8d",
+            fontSize: "16px",
+            lineHeight: "1.5"
+          }}>
+            {selectedRole === 'principal' 
+              ? 'Your Principal account has been created successfully!'
+              : `Your registration as ${pendingRole.toUpperCase()} has been submitted. Your account will be activated after approval from the Principal.`
+            }
+          </p>
+          
+          <p style={{ 
+            marginBottom: "30px", 
+            color: "#e67e22",
+            fontSize: "14px",
+            fontStyle: "italic"
+          }}>
+            {email && `Registered email: ${email}`}
+          </p>
+          
+          <button 
+            onClick={handleBackToLogin}
+            style={{ 
+              width: "100%", 
+              padding: "12px", 
+              background: "#3498db", 
+              color: "white", 
+              border: "none", 
+              borderRadius: "5px",
+              fontSize: "16px",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
+          >
+            Return to Login
+          </button>
+        </div>
       </div>
     );
   }
 
-  if (currentPage === 'staff') {
-    return <StaffManagement onBack={() => setCurrentPage('dashboard')} />;
+  if (isLogin && !selectedRole) {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          height: "100vh",
+          backgroundColor: "#f4f6f8",
+          flexDirection: "column"
+        }}>
+          <div style={{ 
+            background: "white", 
+            padding: "40px", 
+            borderRadius: "15px", 
+            boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
+            textAlign: "center",
+            width: "350px"
+          }}>
+            <h2 style={{ 
+              textAlign: "center", 
+              marginBottom: "30px", 
+              color: "#2c3e50",
+              fontSize: "28px"
+            }}>
+              School Portal
+            </h2>
+            
+            <p style={{ 
+              marginBottom: "30px", 
+              color: "#7f8c8d",
+              fontSize: "16px"
+            }}>
+              Please select your role to continue
+            </p>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <button 
+                onClick={() => handleRoleSelection('principal')}
+                style={{ 
+                  width: "100%", 
+                  padding: "15px", 
+                  background: "#e74c3c", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Principal Login
+              </button>
+              
+              <button 
+                onClick={() => handleRoleSelection('staff')}
+                style={{ 
+                  width: "100%", 
+                  padding: "15px", 
+                  background: "#3498db", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Staff Login
+              </button>
+              
+              <button 
+                onClick={() => handleRoleSelection('student')}
+                style={{ 
+                  width: "100%", 
+                  padding: "15px", 
+                  background: "#27ae60", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Student Login
+              </button>
+            </div>
+
+            <div style={{ marginTop: "30px", paddingTop: "20px", borderTop: "1px solid #eee" }}>
+              <button 
+                onClick={toggleAuthMode}
+                style={{ 
+                  background: "none", 
+                  border: "none", 
+                  color: "#3498db", 
+                  cursor: "pointer", 
+                  fontSize: "14px",
+                  textDecoration: "underline"
+                }}
+              >
+                New Registration? Sign up here
+              </button>
+            </div>
+          </div>
+        </div>
+      </GoogleOAuthProvider>
+    );
   }
 
-  // Dashboard items array
-  const dashboardItems = [
-    {
-      icon: "👥",
-      title: "Access Staffs",
-      description: "Manage teaching and non-teaching staff accounts, permissions, and profiles",
-      onClick: () => setCurrentPage('staff')
-    },
-    {
-      icon: "🎓",
-      title: "Access Students",
-      description: "View student profiles, manage enrollments, and track academic progress",
-      onClick: () => alert("Access Students functionality will be implemented here")
-    },
-    {
-      icon: "📅",
-      title: "Generate Timetable",
-      description: "Create and manage class schedules, teacher assignments, and room allocations",
-      onClick: () => alert("Generate Timetable functionality will be implemented here")
-    },
-    {
-      icon: "📚",
-      title: "Generate Curriculum",
-      description: "Design course structures, syllabus, and academic curriculum for different programs",
-      onClick: () => alert("Generate Curriculum functionality will be implemented here")
-    },
-    {
-      icon: "⚡",
-      title: "Access Activities",
-      description: "Manage extracurricular activities, events, clubs, and student organizations",
-      onClick: () => alert("Access Activities functionality will be implemented here")
-    }
-  ];
+  if (isLogin && selectedRole) {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          height: "100vh",
+          backgroundColor: "#f4f6f8",
+          flexDirection: "column"
+        }}>
+          <div style={{ 
+            background: "white", 
+            padding: "30px", 
+            borderRadius: "15px", 
+            boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
+            width: "350px"
+          }}>
+            <button 
+              onClick={handleBackToRoleSelection}
+              style={{ 
+                background: "none", 
+                border: "none", 
+                color: "#3498db", 
+                cursor: "pointer", 
+                marginBottom: "20px",
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              ← Back to role selection
+            </button>
+
+            <h2 style={{ 
+              textAlign: "center", 
+              marginBottom: "20px", 
+              color: "#2c3e50",
+              textTransform: "capitalize"
+            }}>
+              {selectedRole} Login
+            </h2>
+            
+            {error && (
+              <div style={{ 
+                color: "red", 
+                textAlign: "center", 
+                marginBottom: "15px",
+                padding: "10px",
+                backgroundColor: "#ffebee",
+                borderRadius: "5px",
+                fontSize: "14px"
+              }}>
+                {error}
+              </div>
+            )}
+            
+            <form onSubmit={handleLogin}>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  marginBottom: "15px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+              
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  marginBottom: "20px", 
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  boxSizing: "border-box" 
+                }}
+              />
+              
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  background: isLoading ? "#ccc" : 
+                             selectedRole === 'principal' ? "#e74c3c" :
+                             selectedRole === 'staff' ? "#3498db" : "#27ae60", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "5px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  marginBottom: '15px'
+                }}
+              >
+                {isLoading ? "Signing in..." : "Login"}
+              </button>
+            </form>
+
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="signin_with"
+                shape="rectangular"
+                size="large"
+                width="100%"
+              />
+            </div>
+
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <button 
+                onClick={toggleAuthMode}
+                style={{ 
+                  background: "none", 
+                  border: "none", 
+                  color: "#3498db", 
+                  cursor: "pointer", 
+                  fontSize: "14px",
+                  textDecoration: "underline"
+                }}
+              >
+                New Registration? Sign up here
+              </button>
+            </div>
+          </div>
+        </div>
+      </GoogleOAuthProvider>
+    );
+  }
 
   return (
-    <div style={{ 
-      minHeight: "100vh",
-      backgroundColor: "#f4f6f8",
-      padding: "20px"
-    }}>
-      {/* Header - Aligned to left */}
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <div style={{ 
-        background: "white", 
-        padding: "25px", 
-        borderRadius: "10px", 
-        boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-        marginBottom: "30px",
-        textAlign: "left"
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        backgroundColor: "#f4f6f8",
+        flexDirection: "column"
       }}>
-        <h1 style={{ 
-          color: "#2c3e50",
-          fontSize: "32px",
-          marginBottom: "8px",
-          fontWeight: "600"
+        <div style={{ 
+          background: "white", 
+          padding: "30px", 
+          borderRadius: "15px", 
+          boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
+          width: "400px"
         }}>
-          Welcome, {user?.name || user?.username || 'User'}!
-        </h1>
-        
-        <p style={{ 
-          fontSize: "18px",
-          color: "#7f8c8d",
-          marginBottom: "0",
-          fontWeight: "500"
-        }}>
-          Principal Dashboard
-        </p>
-      </div>
+          <button 
+            onClick={handleBackToLogin}
+            style={{ 
+              background: "none", 
+              border: "none", 
+              color: "#3498db", 
+              cursor: "pointer", 
+              marginBottom: "20px",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            ← Back to Login
+          </button>
 
-      {/* Top Row - 3 Grids */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "25px",
-        maxWidth: "1000px",
-        margin: "0 auto 25px auto"
-      }}>
-        {dashboardItems.slice(0, 3).map((item, index) => (
-          <DashboardCard
-            key={index}
-            icon={item.icon}
-            title={item.title}
-            description={item.description}
-            onClick={item.onClick}
-          />
-        ))}
-      </div>
+          <h2 style={{ 
+            textAlign: "center", 
+            marginBottom: "25px", 
+            color: "#2c3e50"
+          }}>
+            New Registration
+          </h2>
+          
+          {error && (
+            <div style={{ 
+              color: "red", 
+              textAlign: "center", 
+              marginBottom: "15px",
+              padding: "10px",
+              backgroundColor: "#ffebee",
+              borderRadius: "5px",
+              fontSize: "14px"
+            }}>
+              {error}
+            </div>
+          )}
+          
+          <select
+            value={selectedRole || ""}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            disabled={isLoading}
+            style={{ 
+              width: "100%", 
+              padding: "12px", 
+              marginBottom: "15px", 
+              border: "1px solid #ddd",
+              borderRadius: "5px",
+              boxSizing: "border-box",
+              fontSize: "16px"
+            }}
+          >
+            <option value="">Select Your Role</option>
+            <option value="principal">Principal</option>
+            <option value="staff">Staff</option>
+            <option value="student">Student</option>
+          </select>
 
-      {/* Bottom Row - 2 Grids Centered */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: "25px",
-        maxWidth: "700px",
-        margin: "0 auto"
-      }}>
-        {dashboardItems.slice(3, 5).map((item, index) => (
-          <DashboardCard
-            key={index + 3}
-            icon={item.icon}
-            title={item.title}
-            description={item.description}
-            onClick={item.onClick}
-          />
-        ))}
-      </div>
+          {selectedRole && (
+            <div style={{ 
+              marginBottom: "15px", 
+              padding: "10px", 
+              backgroundColor: selectedRole === 'principal' ? "#ffeaa7" : "#d6eaf8",
+              borderRadius: "5px",
+              fontSize: "14px",
+              color: selectedRole === 'principal' ? "#d35400" : "#2874a6"
+            }}>
+              {selectedRole === 'principal' 
+                ? "Principal accounts are activated immediately."
+                : "Staff and Student accounts require Principal approval."
+              }
+            </div>
+          )}
 
-      {/* Logout Button */}
-      <div style={{ 
-        textAlign: "center", 
-        marginTop: "50px" 
-      }}>
-        <button 
-          onClick={onLogout}
-          style={{ 
-            padding: "12px 40px", 
-            background: "#e74c3c", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "8px",
-            fontSize: "16px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "background 0.2s ease"
-          }}
-          onMouseEnter={(e) => e.target.style.background = "#c0392b"}
-          onMouseLeave={(e) => e.target.style.background = "#e74c3c"}
-        >
-          Logout
-        </button>
+          {selectedRole && (
+            <div style={{ marginBottom: '20px' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="signup_with"
+                shape="rectangular"
+                size="large"
+                width="100%"
+              />
+            </div>
+          )}
+
+          <div style={{ textAlign: 'center', marginBottom: '20px', color: '#7f8c8d' }}>
+            or continue with email
+          </div>
+
+          <form onSubmit={handleEmailSignup}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isLoading}
+              style={{ 
+                width: "100%", 
+                padding: "12px", 
+                marginBottom: "15px", 
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                boxSizing: "border-box" 
+              }}
+            />
+            
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              style={{ 
+                width: "100%", 
+                padding: "12px", 
+                marginBottom: "15px", 
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                boxSizing: "border-box" 
+              }}
+            />
+            
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              style={{ 
+                width: "100%", 
+                padding: "12px", 
+                marginBottom: "15px", 
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                boxSizing: "border-box" 
+              }}
+            />
+            
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={isLoading}
+              style={{ 
+                width: "100%", 
+                padding: "12px", 
+                marginBottom: "20px", 
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                boxSizing: "border-box" 
+              }}
+            />
+            
+            <button 
+              type="submit" 
+              disabled={isLoading || !selectedRole}
+              style={{ 
+                width: "100%", 
+                padding: "12px", 
+                background: isLoading ? "#ccc" : "#27ae60", 
+                color: "white", 
+                border: "none", 
+                borderRadius: "5px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: (isLoading || !selectedRole) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {isLoading ? "Submitting..." : "Register with Email"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
-};
+}
 
-export default PrincipalDashboard;
+export default PrincipalLogin;
